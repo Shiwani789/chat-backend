@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  username   String   @unique
+  phone      String?  @unique
+  about      String?  @default("Hey there! I am using WhatsApp")
+  profilePic String?
+  socketId   String?  // for real-time connection status and signaling
+  fcmToken   String?
+  isOnline   Boolean  @default(false)
+  lastSeen   DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  messagesSent     Message[]  @relation("Sender")
+  messagesReceived Message[]  @relation("Receiver")
+  deletedMessages  MessageDeletion[]
+  statusUpdates    Status[]
+  statusViews      StatusView[]
+  callsMade        CallLog[]  @relation("Caller")
+  callsReceived    CallLog[]  @relation("Receiver")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String   @default("")
+  type       String   @default("text") // text, image, video, voice, audio, document
+  mediaUrl   String?
+  mediaName  String?
+  mediaSize  Int?
+  duration   Int?     // voice/audio/video duration in seconds
+  senderId   String
+  receiverId String
+  status     String   @default("SENT") // SENT, DELIVERED, READ
+  deletedForEveryone Boolean @default(false)
+  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  sender     User @relation("Sender", fields: [senderId], references: [id])
+  receiver   User @relation("Receiver", fields: [receiverId], references: [id])
+  deletions  MessageDeletion[]
+}
+
+model MessageDeletion {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  deletedAt DateTime @default(now())
+
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+}
+
+model Status {
+  id        String   @id @default(uuid())
+  userId    String
+  content   String?  // text status
+  mediaUrl  String?  // image/video status
+  type      String   @default("text") // text, image, video
+  bgColor   String?  @default("#075E54")
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user      User @relation(fields: [userId], references: [id])
+  views     StatusView[]
+}
+
+model StatusView {
+  id        String   @id @default(uuid())
+  statusId  String
+  userId    String
+  viewedAt  DateTime @default(now())
+
+  status    Status @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([statusId, userId])
+}
+
+model CallLog {
+  id         String   @id @default(uuid())
+  callerId   String
+  receiverId String
+  type       String   @default("voice") // voice, video
+  status     String   @default("missed") // missed, answered, declined, outgoing
+  duration   Int      @default(0) // in seconds
+  createdAt  DateTime @default(now())
+
+  caller     User @relation("Caller", fields: [callerId], references: [id])
+  receiver   User @relation("Receiver", fields: [receiverId], references: [id])
+}
