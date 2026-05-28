@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../../config/prisma';
+import { errorResponse } from '../../utils/errorResponse';
 
 export const authRouter = Router();
 
@@ -36,6 +37,6 @@ authRouter.post('/register', async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Failed to register' });
+    res.status(500).json(errorResponse('Failed to register', error));
   }
 });

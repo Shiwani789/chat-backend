@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
 const express_1 = require("express");
 const prisma_1 = require("../../config/prisma");
+const errorResponse_1 = require("../../utils/errorResponse");
 exports.authRouter = (0, express_1.Router)();
 exports.authRouter.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { phone, username, profilePic } = req.body;
@@ -42,6 +43,6 @@ exports.authRouter.post('/register', (req, res) => __awaiter(void 0, void 0, voi
     }
     catch (error) {
         console.error('Register error:', error);
-        res.status(500).json({ error: 'Failed to register' });
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to register', error));
     }
 }));

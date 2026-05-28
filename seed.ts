@@ -27,11 +27,22 @@ async function main() {
   ];
 
   for (const user of dummyUsers) {
-    await prisma.user.upsert({
-      where: { phone: user.phone },
-      update: {},
-      create: user,
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ phone: user.phone }, { username: user.username }],
+      },
     });
+
+    if (existingUser) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: user,
+      });
+      console.log(`Updated user: ${user.username} (${user.phone})`);
+      continue;
+    }
+
+    await prisma.user.create({ data: user });
     console.log(`Added user: ${user.username} (${user.phone})`);
   }
 
@@ -42,8 +53,10 @@ async function run() {
   try {
     await main();
   } catch (e) {
-    console.error(e);
+    console.error('Seed failed:', e);
+    throw e;
+  } finally {
+    await prisma.$disconnect();
   }
-  await prisma.$disconnect();
 }
 run();

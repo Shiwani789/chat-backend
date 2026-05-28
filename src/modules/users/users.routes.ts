@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../../config/prisma';
+import { errorResponse } from '../../utils/errorResponse';
 
 export const usersRouter = Router();
 
@@ -17,7 +18,8 @@ usersRouter.post('/', async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to process user' });
+    console.error('User upsert error:', error);
+    res.status(500).json(errorResponse('Failed to process user', error));
   }
 });
 
@@ -37,7 +39,8 @@ usersRouter.get('/', async (_req, res) => {
     });
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+    console.error('Users fetch error:', error);
+    res.status(500).json(errorResponse('Failed to fetch users', error));
   }
 });
 
@@ -62,7 +65,8 @@ usersRouter.get('/:userId', async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
+    console.error('User fetch error:', error);
+    res.status(500).json(errorResponse('Failed to fetch user', error));
   }
 });
 
@@ -82,7 +86,7 @@ usersRouter.put('/:userId/profile', async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Profile update error:', error);
-    res.status(500).json({ error: 'Failed to update profile' });
+    res.status(500).json(errorResponse('Failed to update profile', error));
   }
 });
 
@@ -102,6 +106,6 @@ usersRouter.put('/:userId/fcm-token', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('FCM token update error:', error);
-    res.status(500).json({ error: 'Failed to update FCM token' });
+    res.status(500).json(errorResponse('Failed to update FCM token', error));
   }
 });

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersRouter = void 0;
 const express_1 = require("express");
 const prisma_1 = require("../../config/prisma");
+const errorResponse_1 = require("../../utils/errorResponse");
 exports.usersRouter = (0, express_1.Router)();
 exports.usersRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.body;
@@ -26,7 +27,8 @@ exports.usersRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, fu
         res.json(user);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to process user' });
+        console.error('User upsert error:', error);
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to process user', error));
     }
 }));
 exports.usersRouter.get('/', (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -46,7 +48,8 @@ exports.usersRouter.get('/', (_req, res) => __awaiter(void 0, void 0, void 0, fu
         res.json(users);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to fetch users' });
+        console.error('Users fetch error:', error);
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to fetch users', error));
     }
 }));
 exports.usersRouter.get('/:userId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -69,7 +72,8 @@ exports.usersRouter.get('/:userId', (req, res) => __awaiter(void 0, void 0, void
         res.json(user);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user' });
+        console.error('User fetch error:', error);
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to fetch user', error));
     }
 }));
 exports.usersRouter.put('/:userId/profile', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -84,7 +88,7 @@ exports.usersRouter.put('/:userId/profile', (req, res) => __awaiter(void 0, void
     }
     catch (error) {
         console.error('Profile update error:', error);
-        res.status(500).json({ error: 'Failed to update profile' });
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to update profile', error));
     }
 }));
 exports.usersRouter.put('/:userId/fcm-token', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -102,6 +106,6 @@ exports.usersRouter.put('/:userId/fcm-token', (req, res) => __awaiter(void 0, vo
     }
     catch (error) {
         console.error('FCM token update error:', error);
-        res.status(500).json({ error: 'Failed to update FCM token' });
+        res.status(500).json((0, errorResponse_1.errorResponse)('Failed to update FCM token', error));
     }
 }));
